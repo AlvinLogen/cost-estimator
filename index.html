@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Cost Estimator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+
+        body {
+          background-color: white !important;
+        }
+
+        .print-shadow {
+          box-shadow: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-100 min-h-screen font-sans">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-slate-800 focus:text-white focus:px-4 focus:py-2 focus:z-50 focus:rounded-bg-lg focus:text-sm"
+      >Skip to estimator</a
+    >
+    <header class="bg-slate-800 text-white shadow-lg no-print">
+      <div class="max-w-6xl mx-auto px-6 py-5">
+        <h1 class="text-2xl font-bold tracking-tight">
+          Project Cost Estimator
+        </h1>
+        <p class="text-slate-400 text-sm mt-1">
+          Calculate team costs, save estimates, and export to CSV
+        </p>
+      </div>
+    </header>
+
+    <main id="main-content" class="max-w-6xl mx-auto px-4 py-8">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!--LEFT SIDEBAR: INPUT FORM-->
+        <aside class="no-print lg:w-80 shrink-0">
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-5">
+              New Estimate
+            </h2>
+            <form id="estimator-form" novalidate class="space-y-4">
+              <div>
+                <label
+                  for="projectName"
+                  class="block text-sm font-medium text-slate-700 mb-1"
+                  >Project Name</label
+                >
+                <input
+                  type="text"
+                  id="projectName"
+                  placeholder="e.g. Client Portal Redesign"
+                  autocomplete="off"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-shadow"
+                />
+              </div>
+              <div>
+                <label
+                  for="durationWeeks"
+                  class="block text-sm font-medium text-slate-700 mb-1"
+                  >Duration (weeks)</label
+                >
+                <input
+                  type="number"
+                  id="durationWeeks"
+                  placeholder="e.g. 8"
+                  min="1"
+                  step="1"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-shadow"
+                />
+              </div>
+              <fieldset class="border-t border-slate-200 pt-4">
+                <legend class="text-sm font-semibold text-slate-700 mb-3">
+                  Team Roles
+                </legend>
+                <div class="space-y-2 mb-3">
+                  <div class="grid grid-cols-2 gap-2">
+                    <label
+                      for="roleName"
+                      class="block text-xs text-slate-500 mb-1"
+                      >Role Title</label
+                    >
+                    <input
+                      type="text"
+                      id="roleName"
+                      placeholder="e.g. Developer"
+                      autocomplete="off"
+                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                    />
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label
+                      for="hourlyRate"
+                      class="block text-xs text-slate-500 mb-1"
+                      >Rate ($/hr)</label
+                    >
+                    <input
+                      type="number"
+                      id="hourlyRate"
+                      placeholder="75"
+                      min="1"
+                      step="0.01"
+                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                    />
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label
+                      for="hoursPerWeek"
+                      class="block text-xs text-slate-500 mb-1"
+                      >Hours/Week</label
+                    >
+                    <input
+                      type="number"
+                      id="hoursPerWeek"
+                      placeholder="40"
+                      min="1"
+                      step="1"
+                      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    id="addRoleBtn"
+                    class="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+                  >
+                    + Add Role
+                  </button>
+                </div>
+
+                <ul id="rolesList" aria-label="Added Roles" aria-live="polite">
+                  <!--Dynamic role items inserted here-->
+                </ul>
+              </fieldset>
+
+              <!--Contingency Toggle-->
+              <div class="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="addContingency"
+                  class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                />
+                <label
+                  for="addContingency"
+                  class="text-sm text-slate-700 cursor-pointer"
+                  >Include 15% risk contingency</label
+                >
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-emerald-600 text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 transition-colors mt-2"
+              >
+                Calculate Estimate
+              </button>
+            </form>
+          </div>
+        </aside>
+
+        <!--RIGHT PANEL: RESULTS-->
+        <section class="flex-1 min-w-0">
+          <div class="print-shadow bg-white rounded-xl shadow-md p-6">
+            <!--Results Header with action buttons-->
+            <div class="no-print flex items-center justify-between mb-6">
+              <h2 class="text-lg font-semibold text-slate-800">
+                Estimate Breakdown
+              </h2>
+              <div class="flex gap-2">
+                <button
+                  id="saveBtn"
+                  class="hidden text-sm bg-slate-100 hover:bg-blue-200 text-slate-700 py-3 py-1.5 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors"
+                >
+                  Save Estimate</button
+                ><button
+                  id="exportBtn"
+                  class="hidden text-sm bg-slate-100 hover:bg-blue-200 text-slate-700 py-3 py-1.5 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors"
+                >
+                  Export CSV</button
+                ><button
+                  id="printBtn"
+                  onclick="window.print()"
+                  class="text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                >
+                  Print
+                </button>
+              </div>
+            </div>
+
+            <!--Empty State-->
+            <div id="emptyState" class="text-center py-20">
+              <p class="text-slate-400 text-sm">
+                Add roles and click <strong>Calculate Estimate</strong> to see
+                the breakdown.
+              </p>
+            </div>
+
+            <!--Results area-->
+            <div id="resultsArea" class="hidden">
+              <!--Summary stat cards-->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p
+                    class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1"
+                  >
+                    Total Cost
+                  </p>
+                  <p id="resTotal" class="text-2xl font-bold text-blue-900">
+                    $0
+                  </p>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-4">
+                  <p
+                    class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1"
+                  >
+                    Duration
+                  </p>
+                  <p id="resWeeks" class="text-xl font-semibold text-slate-700">
+                    0 wks
+                  </p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                  <p
+                    class="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1"
+                  >
+                    Total Hours
+                  </p>
+                  <p
+                    id="resHours"
+                    class="text-xl font-semibold text-purple-900"
+                  >
+                    0 hrs
+                  </p>
+                </div>
+                <div class="bg-emerald-50 rounded-lg p-4">
+                  <p
+                    class="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1"
+                  >
+                    Contingency
+                  </p>
+                  <p
+                    id="resContingency"
+                    class="text-xl font-semibold text-emerald-900"
+                  >
+                    $0
+                  </p>
+                </div>
+              </div>
+
+              <!--Role breakdown table-->
+              <div
+                class="overflow-x-auto rounded-lg border border-slate-200 mb-4"
+              >
+                <table class="w-full text-sm text-left">
+                  <thead class="bg-slate-50 text-slate-600">
+                    <tr>
+                      <th class="px-4 py-3 font-semibold">Role</th>
+                      <th class="px-4 py-3 font-semibold">Rate</th>
+                      <th class="px-4 py-3 font-semibold">Hrs / Wk</th>
+                      <th class="px-4 py-3 font-semibold">Total Hours</th>
+                      <th class="px-4 py-3 font-semibold">Total Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="resTableBody"
+                    aria-live="polite"
+                    class="divide-y divide-slate-100"
+                  >
+                    <!--Rows inserted by ui.js-->
+                  </tbody>
+                </table>
+              </div>
+
+              <!--Contingency Note-->
+              <p
+                id="contingencyNote"
+                class="hidden text-xs text-slate-400 italic mb-4"
+              >
+                * Total includes 15% risk contingency of
+                <span id="contingencyAmount"></span>.
+              </p>
+              <div id="barChart" class="hidden space-y-2 mt-6"></div>
+            </div>
+          </div>
+
+          <div
+            id="historyPanel"
+            class="hidden mt-6 bg-white rounded-xl shadow-md p-6 no-print"
+          >
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">
+              Previous Estimates
+            </h2>
+            <ul
+              id="historyList"
+              class="space-y-2 text-sm"
+              aria-live="polite"
+            ></ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer
+      class="text-center text-slate-400 text-xs py-6 border-t border-slate-200 no-print"
+    >
+      Project Cost Estimator
+    </footer>
+
+    <script src="js/calculator.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/ui.js"></script>
+  </body>
+</html>
