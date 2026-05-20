@@ -75,7 +75,7 @@ function calculateEstimate(config) {
   });
 
   const contingencyAmount = config.addContingency ? subTotal * 0.15 : 0;
-  const finalTotal = subTotal + congingencyAmount;
+  const finalTotal = subTotal + contingencyAmount;
 
   return {
     projectName: config.projectName,
