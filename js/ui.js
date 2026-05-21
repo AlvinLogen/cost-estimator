@@ -208,5 +208,97 @@ estimatorForm.addEventListener("submit", function (event) {
   exportBtn.classList.remove("hidden");
 
   // Store the results on the forms dataset
-  estimatorForm.dataset.lastResult = JSON.stringify(result);    
+  estimatorForm.dataset.lastResult = JSON.stringify(result);
 });
+
+// SAVE BUTTON — Persist the current estimate
+// ============================================
+const historyPanelEl = document.getElementById("historyPanel");
+const historyListEl = document.getElementById("historyList");
+
+saveBtn.addEventListener("click", function () {
+  const raw = estimatorForm.dataset.lastResult;
+
+  if (!raw) return;
+
+  let result;
+  try {
+    result = JSON.parse(raw);
+  } catch (err) {
+    alert("Could not save estimate - data was unreadable.");
+    return;
+  }
+
+  const projectName = projectNameInput.value.trim() || "Unnamed Project";
+  saveEstimateToStorage(result, projectName);
+
+  renderHistoryPanel();
+
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = "Saved ✓";
+  saveBtn.disabled = true;
+
+  setTimeout(function () {
+    saveBtn.textContent = originalText;
+    saveBtn.disabled = false;
+  }, 2000);
+});
+
+// HISTORY PANEL — Render all saved estimates
+// ============================================
+
+function renderHistoryPanel() {
+  const history = loadHistoryFromStorage();
+
+  if (history.length === 0) {
+    historyPanelEl.classList.add("hidden");
+    return;
+  }
+
+  historyPanelEl.classList.remove("hidden");
+  historyListEl.innerHTML = "";
+
+  history.forEach(function (record) {
+    const li = document.createElement("li");
+    li.className =
+      "flex items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3";
+
+    const infoDiv = document.createElement("div");
+    infoDiv.className = "flex-1 min-w-0";
+
+    const nameEl = document.createElement("p");
+    nameEl.className = "text-sm font-semibold text-slate-800 truncate";
+    nameEl.textContent = record.projectName;
+
+    const metaEl = document.createElement("p");
+    metaEl.className = "text-xs text-slate-400 mt-0.5";
+    metaEl.textContent =
+      formatSavedDate(record.savedAt) +
+      " . " +
+      formatCurrency(record.data.finalTotal);
+
+    infoDiv.appendChild(nameEl);
+    infoDiv.appendChild(metaEl);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className =
+      "text-slate-300 hoever:text-red-400 text-xl leading-none focus:outline-none focus:ring-1 focus:ring-red-300 rounded shrink-0";
+    delBtn.setAttribute("aria-label", "Delete estimate: " + record.projectName);
+    delBtn.textContent = "x";
+
+    delBtn.addEventListener("click", function () {
+      deleteEstimatorFromStorage(record.id);
+      renderHistoryPanel();
+    });
+
+    li.appendChild(infoDiv);
+    li.appendChild(delBtn);
+    historyListEl.appendChild(li);
+  });
+}
+
+// INIT — Load history on page start
+// ============================================
+
+renderHistoryPanel();
