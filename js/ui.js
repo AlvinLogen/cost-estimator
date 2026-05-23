@@ -204,11 +204,12 @@ estimatorForm.addEventListener("submit", function (event) {
   emptyStateEl.classList.add("hidden");
   resultsAreaEl.classList.remove("hidden");
 
-  saveBtn.classList.remove("hidden");
-  exportBtn.classList.remove("hidden");
+  renderBarChart(result.rolesBreakdown);
 
   // Store the results on the forms dataset
   estimatorForm.dataset.lastResult = JSON.stringify(result);
+  saveBtn.classList.remove("hidden");
+  exportBtn.classList.remove("hidden");
 });
 
 // SAVE BUTTON — Persist the current estimate
@@ -298,11 +299,6 @@ function renderHistoryPanel() {
   });
 }
 
-// INIT — Load history on page start
-// ============================================
-
-renderHistoryPanel();
-
 // EXPORT BUTTON — Trigger CSV download
 // ============================================
 
@@ -321,3 +317,75 @@ exportBtn.addEventListener("click", function () {
 
   exportEstimateToCsv(result);
 });
+
+// BAR CHART — Visual cost breakdown by role
+// ============================================
+
+const barCharEl = document.getElementById("barChart");
+const barCharRowsEl = document.getElementById("barChartRows");
+
+function renderBarChart(rolesBreakdown) {
+  barCharRowsEl.innerHTML = "";
+
+  if (!rolesBreakdown || rolesBreakdown.length === 0) {
+    barCharEl.classList.add("hidden");
+    return;
+  }
+
+  const maxCost = Math.max(
+    ...rolesBreakdown.map(function (r) {
+      return r.roleTotalCost;
+    }),
+  );
+
+  rolesBreakdown.forEach(function (role) {
+    const pct =
+      maxCost > 0 ? Math.round((role.roleTotalCost / maxCost) * 100) : 0;
+    const width = Math.max(pct, role.roleTotalCost > 0 ? 1 : 0);
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "spacy-y-1";
+
+    const labelDiv = document.createElement("label");
+    labelDiv.className = "flex justify-between text-sm";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "font-medium text-slate-700 truncate max-w-xs";
+    nameSpan.textContent = role.name;
+
+    const costSpan = document.createElement("span");
+    costSpan.className = "text-slate-500 shrink-0 m1-2";
+    costSpan.textContent = formatCurrency(role.roleTotalCost);
+
+    labelDiv.appendChild(nameSpan);
+    labelDiv.appendChild(costSpan);
+
+    const trackDiv = document.createElement("div");
+    trackDiv.className = "w-full bg-slate-100 rounded-full h-3 overflow-hidden";
+
+    const barDiv = document.createElement("div");
+    barDiv.className =
+      "bg-blue-500 h-3 rounded-full transition-all duration-500";
+    barDiv.style.width = width + "%";
+
+    barDiv.setAttribute("role", "meter");
+    barDiv.setAttribute("aria-valuenow", String(width));
+    barDiv.setAttribute("aria-valuemin", "0");
+    barDiv.setAttribute("aria-valuemax", "100");
+    barDiv.setAttribute(
+      "aria-label",
+      role.name + ": " + width + "% of largest role cost",
+    );
+
+    trackDiv.appendChild(barDiv);
+    rowDiv.appendChild(labelDiv);
+    rowDiv.appendChild(trackDiv);
+    barCharRowsEl.appendChild(rowDiv);
+  });
+
+  barCharEl.classList.remove("hidden");
+}
+
+// INIT — Load history on page start
+// ============================================
+
+renderHistoryPanel();
