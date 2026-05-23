@@ -1,6 +1,6 @@
 // UI.JS - DOM wiring, events and rendering. Calls functions from calculator.js, storage.js and export.js
 // ============================
-
+// Week 2 polish complete
 let currentRoles = [];
 
 const projectNameInput = document.getElementById("projectName");
