@@ -1,9 +1,3 @@
-// CALCULATOR.JS - Takes Data In, Returns Data Out
-// ==============================
-
-// VALIDATION - Guard against bad inputs
-// ==============================
-
 function validateConfig(config) {
   const errors = [];
 
@@ -13,11 +7,11 @@ function validateConfig(config) {
 
   const duration = config.durationWeeks;
   if (!Number.isInteger(duration) || duration < 1) {
-    errors.push("Duration must be a whole number of 1 or more weeks.");
+    errors.push("Duration weeks must be greater than or equal to 1.");
   }
 
   if (!Array.isArray(config.roles) || config.roles.length === 0) {
-    errors.push("At least one role is required.");
+    errors.push("At least one role is required");
   } else {
     config.roles.forEach(function (role, index) {
       if (typeof role.name !== "string" || role.name.trim() === "") {
@@ -32,9 +26,7 @@ function validateConfig(config) {
 
       if (!Number.isInteger(role.hoursPerWeek) || role.hoursPerWeek < 1) {
         errors.push(
-          "Role " +
-            (index + 1) +
-            ": hours per week must be a whole number of 1 or more.",
+          "Role " + (index + 1) + ": hours per week must be a whole number.",
         );
       }
     });
@@ -43,13 +35,9 @@ function validateConfig(config) {
   return errors;
 }
 
-// CALCULATE - Core cost engine
-// CONCEPT: This function takes a CONFIG object (the inputs) and returns a RESULT object (the computed values).
-// ============================
-
 function calculateEstimate(config) {
-  // Validation
   const errors = validateConfig(config);
+
   if (errors.length > 0) {
     throw new Error("Invalid estimate config:\n" + errors.join("\n"));
   }
@@ -61,7 +49,6 @@ function calculateEstimate(config) {
     const roleTotalHours = role.hoursPerWeek * config.durationWeeks;
     const roleTotalCost = roleTotalHours * role.hourlyRate;
 
-    // Accumulate running totals of roles
     subTotal += roleTotalCost;
     totalHours += roleTotalHours;
 
@@ -89,8 +76,6 @@ function calculateEstimate(config) {
   };
 }
 
-// FORMATTING - Display Helpers -  Intl.NumberFormat is the browser's built-in currency formatter.
-// ==============================
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
