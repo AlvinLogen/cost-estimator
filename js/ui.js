@@ -302,3 +302,22 @@ function renderHistoryPanel() {
 // ============================================
 
 renderHistoryPanel();
+
+// EXPORT BUTTON — Trigger CSV download
+// ============================================
+
+exportBtn.addEventListener("click", function () {
+  const raw = estimatorForm.dataset.lastResult;
+
+  if (!raw) return;
+  let result;
+
+  try {
+    result = JSON.parse(raw);
+  } catch (err) {
+    alert("Could not export - data was unreachable.");
+    return;
+  }
+
+  exportEstimateToCsv(result);
+});

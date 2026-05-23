@@ -57,7 +57,7 @@ function deleteEstimatorFromStorage(id) {
 
 // FORMAT DATE — Turn ISO string into readable label
 // ============================================
-function formatOnSave(isoString) {
+function formatSavedDate(isoString) {
   try {
     return new Date(isoString).toLocaleString();
   } catch (err) {
